@@ -31,10 +31,12 @@ def solve_extended_farming_problem():
     labour_available = 5000
     land_available = 5500
     equipment_available = 2
+    penalty_per_excess_labour = 2.0  # Penalty per unit of excess labour
 
     # Variables
     crop_amount = LpVariable.dicts("crop_amount", crops, 0)
     is_crop_planted = LpVariable.dicts("is_crop_planted", crops, cat=LpBinary)
+    excess_labour = LpVariable("excess_labour", 0)
 
     # Problem
     prob = LpProblem("Extended_Farming_Knapsack", LpMaximize)
@@ -45,11 +47,12 @@ def solve_extended_farming_problem():
             profit[crop] * crop_amount[crop] - setup_cost[crop] * is_crop_planted[crop]
             for crop in crops
         ])
-    ), "Total_Net_Profit"
+        - penalty_per_excess_labour * excess_labour
+    ), "Total_Net_Profit_With_Penalty"
 
     # Constraints
     prob += lpSum([fertilizer_use[crop] * crop_amount[crop] for crop in crops]) <= fertilizer_available, "Fertilizer_Limit"
-    prob += lpSum([labour_use[crop] * crop_amount[crop] for crop in crops]) <= labour_available, "Labour_Limit"
+    prob += lpSum([labour_use[crop] * crop_amount[crop] for crop in crops]) <= labour_available + excess_labour, "Labour_Limit_With_Overuse"
     prob += lpSum([land_use[crop] * crop_amount[crop] for crop in crops]) <= land_available, "Land_Limit"
     prob += lpSum([equipment_required[crop] * is_crop_planted[crop] for crop in crops]) <= equipment_available, "Equipment_Limit"
 
@@ -63,6 +66,8 @@ def solve_extended_farming_problem():
     print("\n📊 Extended MILP Results:")
     print(f"Status: {LpStatus[prob.status]}")
     print(f"Net Profit: £{value(prob.objective):.2f}")
+    print(f"Excess Labour Used: {value(excess_labour):.2f}")
+    print(f"Total Penalty Applied: £{value(excess_labour) * penalty_per_excess_labour:.2f}")
     for crop in crops:
         if value(is_crop_planted[crop]) > 0.5:
             print(f"- Plant {value(crop_amount[crop]):.2f} kg of {crop} ✅")

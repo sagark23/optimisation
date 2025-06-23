@@ -49,8 +49,22 @@ Maximize: 1200x₁ + 1700x₂
   ```
   Solves the basic problem with two crops (potato and carrot) and simple resource constraints.
 
+- **Extended MILP version:**
+  ```sh
+  uv run optimise_milp.py
+  ```
+  Solves the extended problem with multiple crops, setup costs, and additional constraints (fertilizer, labour, land, equipment, binary crop selection, and soft constraints).
+
+## Example: Extended Problem (MILP)
+
+- Multiple crops (potato, carrot, lettuce, tomato)
+- Each crop has profit, setup cost, and resource requirements
+- Constraints on fertilizer, labor, land, and equipment
+- Binary variables for crop selection
+
 ## Files
 - `optimise.py`: Simple LP model for two crops
+- `optimise_milp.py`: Extended MILP model for multiple crops and constraints
 
 ## Solution
 
@@ -60,4 +74,5 @@ Implemented using [PuLP](https://coin-or.github.io/pulp/), a linear programming 
 - Solution using the CBC solver
 - Output analysis and infeasibility detection
 
+See `optimise_milp.py` for the extended MILP model.
 
